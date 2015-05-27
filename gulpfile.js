@@ -1,205 +1,197 @@
 'use strict';
 
-var gulp = require('gulp');
-var del = require('del');
+var gulp = require('gulp'),
+    stripDebug = require('gulp-strip-debug'),
+    gulpif = require('gulp-if'),
+    $ = require('gulp-load-plugins')(),
+    browserify = require('browserify'),
+    watchify = require('watchify'),
+    source = require('vinyl-source-stream'),
+    connect = $.connectMulti,
+    wiredep = require('wiredep').stream,
+    devServer = connect(),
+    proServer = connect();
 
+gulp.task('connect-dev', devServer.server({
+    root: ['src'],
+    port: 8989,
+    livereload: true
+}));
 
+gulp.task('connect-pro', proServer.server({
+    root: ['dist'],
+    port: 9090,
+    livereload: true
+}));
 
-// Load plugins
-var $ = require('gulp-load-plugins')();
-var browserify = require('browserify');
-var watchify = require('watchify');
-var source = require('vinyl-source-stream'),
+gulp.task('clean', function() {
+    return gulp.src(['dist'], {read: false})
+            .pipe($.rimraf());
+});
 
-    sourceFile = './app/scripts/app.js',
+gulp.task('lint', function() {
+    return gulp.src(['src/app/*.js', 'src/app/**/*.js'])
+            .pipe($.jshint('.jshintrc'))
+            .pipe($.jshint.reporter('jshint-stylish'));
+});
 
-    destFolder = './dist/scripts',
-    destFileName = 'app.js';
+gulp.task('robots', function() {
+    gulp.src('src/robots.txt')
+        .pipe(gulp.dest('dist/'));
+});
 
-var browserSync = require('browser-sync');
-var reload = browserSync.reload;
+gulp.task('static', function() {
+    gulp.src('src/static/*')
+        .pipe(gulp.dest('dist/static/'));
+});
 
-// Styles
-gulp.task('styles', ['sass'  , 'stylus'  ]);
+gulp.task('config', function() {
+    gulp.src('src/config/*')
+        .pipe(gulp.dest('dist/config/'));
+});
 
-gulp.task('sass', function() {
-    return gulp.src(['app/styles/**/*.scss', 'app/styles/**/*.css'])
-        .pipe($.rubySass({
-            style: 'expanded',
-            precision: 10,
-            loadPath: ['app/bower_components']
-        }))
-        .pipe($.autoprefixer('last 1 version'))
-        .pipe(gulp.dest('dist/styles'))
-        .pipe($.size());
+gulp.task('fonts', function() {
+    gulp.src('src/assets/fonts/*')
+        .pipe(gulp.dest('dist/assets/fonts'));
+});
+
+gulp.task('images', function() {
+    gulp.src('src/assets/images/*')
+        .pipe(gulp.dest('dist/assets/images'));
+});
+
+gulp.task('styles', ['stylus'], function() {
+    gulp.src('src/assets/styles/*.css')
+        .pipe(gulp.dest('dist/assets/styles'));
 });
 
 gulp.task('stylus', function() {
-    return gulp.src(['app/styles/**/*.styl'])
-        .pipe($.stylus())
-        .pipe($.autoprefixer('last 1 version'))
-        .pipe(gulp.dest('dist/styles'))
-        .pipe($.size());
+    return gulp.src('src/assets/stylus/*.styl')
+        .pipe($.stylus({
+            stylus: 'src/assets/stylus',
+            css: 'src/assets/styles'
+        }))
+        .pipe($.minifyCss())
+        .pipe(gulp.dest('src/assets/styles'))
 });
 
+gulp.task('base', ['robots', 'static', 'config', 'fonts', 'images', 'styles']);
 
-var bundler = watchify(browserify({
-    entries: [sourceFile],
-    debug: true,
-    insertGlobals: true,
-    cache: {},
-    packageCache: {},
-    fullPaths: true
-}));
-
-bundler.on('update', rebundle);
-bundler.on('log', $.util.log);
-
-function rebundle() {
-    return bundler.bundle()
-        // log errors if they happen
-        .on('error', $.util.log.bind($.util, 'Browserify Error'))
-        .pipe(source(destFileName))
-        .pipe(gulp.dest(destFolder))
-        .on('end', function() {
-            reload();
-        });
-}
-
-// Scripts
-gulp.task('scripts', rebundle);
-
-gulp.task('buildScripts', function() {
-    return browserify(sourceFile)
+gulp.task('scripts', ['lint'], function() {
+    var bundler = browserify({
+        entries: ['./src/app/app.js'],
+        transform: ['babelify'],
+        extensions: ['.jsx'],
+        debug: true,
+        cache: {},
+        packageCache: {},
+        fullPaths: true
+    });
+    var watcher = watchify(bundler);
+    return watcher
+        .on('prebundle', function(bundler) {
+            bundler.require('react');
+        })
         .bundle()
-        .pipe(source(destFileName))
-        .pipe(gulp.dest('dist/scripts'));
+        .pipe(source('app.js'))
+        .pipe(gulp.dest('./dist/scripts/'));
 });
 
-
-
-
-    gulp.task('jade', function() {
-        return gulp.src('app/template/*.jade')
-            .pipe($.jade({
-                pretty: true
-            }))
-            .pipe(gulp.dest('dist'));
-    })
-
-
-
-// HTML
-gulp.task('html', function() {
-    return gulp.src('app/*.html')
-        .pipe($.useref())
-        .pipe(gulp.dest('dist'))
-        .pipe($.size());
+gulp.task('html', ['base', 'scripts'], function() {
+    var assets = $.useref.assets();
+    return gulp.src('src/*.html')
+            .pipe(assets)
+            .pipe(gulpif('*.css', $.minifyCss()))
+            .pipe(assets.restore())
+            .pipe($.useref())
+            .pipe(gulp.dest('dist'))
+            .pipe($.size());
 });
 
-// Images
-gulp.task('images', function() {
-    return gulp.src('app/images/**/*')
-        .pipe($.cache($.imagemin({
-            optimizationLevel: 3,
-            progressive: true,
-            interlaced: true
-        })))
-        .pipe(gulp.dest('dist/images'))
-        .pipe($.size());
-});
-
-// Fonts
-gulp.task('fonts', function() {
-    return gulp.src(require('main-bower-files')({
-            filter: '**/*.{eot,svg,ttf,woff,woff2}'
-        }).concat('app/fonts/**/*'))
-        .pipe(gulp.dest('dist/fonts'));
-});
-
-// Clean
-gulp.task('clean', function(cb) {
-    $.cache.clearAll();
-    cb(del.sync(['dist/styles', 'dist/scripts', 'dist/images']));
-});
-
-// Bundle
-gulp.task('bundle', ['styles', 'scripts', 'bower'], function() {
-    return gulp.src('./app/*.html')
-        .pipe($.useref.assets())
-        .pipe($.useref.restore())
-        .pipe($.useref())
-        .pipe(gulp.dest('dist'));
-});
-
-gulp.task('buildBundle', ['styles', 'buildScripts', 'bower'], function() {
-    return gulp.src('./app/*.html')
-        .pipe($.useref.assets())
-        .pipe($.useref.restore())
-        .pipe($.useref())
-        .pipe(gulp.dest('dist'));
-});
-
-// Bower helper
-gulp.task('bower', function() {
-    gulp.src('app/bower_components/**/*.js', {
-            base: 'app/bower_components'
-        })
-        .pipe(gulp.dest('dist/bower_components/'));
-
-});
-
-gulp.task('json', function() {
-    gulp.src('app/scripts/json/**/*.json', {
-            base: 'app/scripts'
-        })
+gulp.task('compress', ['html'], function() {
+    gulp.src(['dist/scripts/app.js', 'dist/scripts/vendor.js'])
+        .pipe(stripDebug())
+        .pipe($.uglify())
         .pipe(gulp.dest('dist/scripts/'));
 });
 
-// Robots.txt and favicon.ico
-gulp.task('extras', function() {
-    return gulp.src(['app/*.txt', 'app/*.ico'])
-        .pipe(gulp.dest('dist/'))
-        .pipe($.size());
+gulp.task('wiredep', function() {
+    gulp.src('src/*.html')
+        .pipe(wiredep({
+            directory: 'src/bower_components',
+            ignorePath: 'src/'
+        }))
+        .pipe(gulp.dest('src'));
 });
 
-// Watch
-gulp.task('watch', ['html', 'fonts', 'bundle'], function() {
+gulp.task('browserify', function() {
+    var bundler = browserify({
+        entries: ['./src/app/app.js'],
+        transform: ['babelify'],
+        extensions: ['.jsx'],
+        debug: true,
+        cache: {},
+        packageCache: {},
+        fullPaths: true
+    });
+    var watcher = watchify(bundler);
+    return watcher
+        .on('prebundle', function(bundler) {
+            bundler.require('react');
+        })
+        .on('update', function() {
+            var updateStart = Date.now();
+            console.log('Updating!');
+            watcher.bundle()
+                .pipe(source('app.js'))
+                .pipe(gulp.dest('./src/scripts/'));
+            console.log('Updated!', (Date.now()-updateStart)+'ms');
+        })
+        .bundle()
+        .pipe(source('app.js'))
+        .pipe(gulp.dest('./src/scripts/'));
+});
 
-    browserSync({
-        notify: false,
-        logPrefix: 'BS',
-        // Run as an https by uncommenting 'https: true'
-        // Note: this uses an unsigned certificate which on first access
-        //       will present a certificate warning in the browser.
-        // https: true,
-        server: ['dist', 'app']
+gulp.task('refresh', ['browserify'], function() {
+    gulp.src('src/scripts/app.js')
+        .pipe(devServer.reload());
+});
+
+gulp.task('watch', ['connect-dev'], function() {
+    gulp.watch([
+        'src/*.html',
+        'src/assets/styles/*.css',
+        'src/assets/images/*',
+        'src/app/*.js',
+        'src/app/**/*.js'
+    ], function(event) {
+        return gulp.src(event.path)
+                .pipe(devServer.reload());
     });
 
-    // Watch .json files
-    gulp.watch('app/scripts/**/*.json', ['json']);
-
-    // Watch .html files
-    gulp.watch('app/*.html', ['html']);
-
-    gulp.watch(['app/styles/**/*.scss', 'app/styles/**/*.css'], ['styles', reload]);
-
-    
-        // Watch .jade files
-        gulp.watch('app/template/**/*.jade', ['jade', 'html', reload]);
-    
-
-    // Watch image files
-    gulp.watch('app/images/**/*', reload);
+    gulp.watch(['src/assets/stylus/*.styl'], ['stylus']);
+    gulp.watch(['src/app/*.js', 'src/app/**/*.js'], ['refresh']);
+    gulp.watch('bower.json', ['wiredep']);
 });
 
-// Build
-gulp.task('build', ['html', 'buildBundle', 'images', 'fonts', 'extras'], function() {
-    gulp.src('dist/scripts/app.js')
-        .pipe($.uglify())
-        .pipe($.stripDebug())
-        .pipe(gulp.dest('dist/scripts'));
+gulp.task('dev', ['browserify'], function() {
+    gulp.start('watch');
 });
 
-// Default task
-gulp.task('default', ['clean', 'build'  ]);
+gulp.task('build', ['compress'], function() {
+    gulp.start('connect-pro');
+});
+
+gulp.task('pro', ['clean'], function() {
+    gulp.start('build');
+});
+
+gulp.task('deploy', ['compress'], function() {
+    gulp.doneCallback = function(err) {
+        process.exit(err ? 1:0);
+    }
+});
+
+gulp.task('production', ['clean'], function() {
+    gulp.start('deploy');
+});

@@ -1,9 +1,12 @@
 {
   "name": "pokemon",
   "version": "0.0.1",
+  "authors": [
+  	"Mitch Chen <mitchblog@gmail.com>"
+  ],
   "dependencies": {
-    "jquery": "~2.1.1",
-    "bootstrap-sass-official": ">=3.3.0",
-    "modernizr": "^2.8.3"
+  	"jquery": "~2.1.0",
+  	"es5-shim": "",
+  	"es6-shim": ""
   }
 }
