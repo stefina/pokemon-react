@@ -2,6 +2,7 @@
   "name": "pokemon",
   "version": "0.0.1",
   "description": "Location-based Pokémon",
+  "private": true,
   "dependencies": {},
   "devDependencies": {
     "babelify": "~6.0.2",
