@@ -7,7 +7,7 @@ PokemonApp = React.createClass({
     render: function() {
         return (
             /*jshint ignore:start */
-            <div>
+            <div className="homeScreen">
                 <h2>Hello, React</h2>
             </div>
             /*jshint ignore:end */
