@@ -1,19 +1,7 @@
 'use strict';
 
 var React = require('react'),
-    PokemonApp;
-
-PokemonApp = React.createClass({
-    render: function() {
-        return (
-            /*jshint ignore:start */
-            <div className="homeScreen">
-                <h2>Hello, React</h2>
-            </div>
-            /*jshint ignore:end */
-        );
-    }
-});
+    PokemonApp = require('./components/PokemonApp.react');
 
 React.render(
     /*jshint ignore:start */
