@@ -1,15 +1,15 @@
 var React = require('react'),
-    MainSection = React.createClass({
+    MapSection = React.createClass({
       /**
        * @return {object}
        */
       render: function() {
         return (
           <div>
-            some other stuff than a map
+            <div id='map'></div>
           </div>
         );
       }
 });
 
-module.exports = MainSection;
+module.exports = MapSection;
