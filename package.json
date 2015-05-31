@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "description": "Location-based Pokémon",
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "react-router": "^0.13.3"
+  },
   "devDependencies": {
     "babelify": "~6.0.2",
     "browserify": "10.0.0",
