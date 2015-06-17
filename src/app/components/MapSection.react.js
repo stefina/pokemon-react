@@ -7,9 +7,11 @@ var React = require('react'),
        */
       render: function() {
         return (
+          /*jshint ignore:start */
           <div>
             <div id='map'></div>
           </div>
+          /*jshint ignore:end */
         );
       }
 });

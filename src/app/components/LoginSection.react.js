@@ -7,9 +7,11 @@ var React = require('react'),
        */
       render: function() {
         return (
+          /*jshint ignore:start */
           <div>
             <LoginForm />
           </div>
+          /*jshint ignore:end */
         );
       }
   });
@@ -29,11 +31,13 @@ var LoginForm = React.createClass({
   },
   render: function() {
     return (
+      /*jshint ignore:start */
       <form className="loginForm" onSubmit={this.handleSubmit}>
         <input type="text" placeholder="Your name" ref="author" />
         <input type="text" placeholder="Say something..." ref="text" />
         <input type="submit" value="Post" />
       </form>
+      /*jshint ignore:end */
     );
   }
 });

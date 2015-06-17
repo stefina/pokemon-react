@@ -7,10 +7,12 @@ var React = require('react'),
        */
       render: function() {
         return (
+          /*jshint ignore:start */
           <div>
             You need an internet connection and an account to play this game.
             It is free.
           </div>
+          /*jshint ignore:end */
         );
       }
 });

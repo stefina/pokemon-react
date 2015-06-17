@@ -4,6 +4,8 @@
   "description": "Location-based Pokémon",
   "private": true,
   "dependencies": {
+    "memcache": "^0.3.0",
+    "node-couchdb": "^0.4.0",
     "react-router": "^0.13.3"
   },
   "devDependencies": {
