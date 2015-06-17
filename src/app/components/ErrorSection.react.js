@@ -1,7 +1,7 @@
 'use strict';
 
 var React = require('react'),
-    MainSection = React.createClass({
+    ErrorSection = React.createClass({
       /**
        * @return {object}
        */
@@ -9,11 +9,12 @@ var React = require('react'),
         return (
           /*jshint ignore:start */
           <div>
-            some other stuff than a map
+            You need an internet connection and an account to play this game.
+            It is free.
           </div>
           /*jshint ignore:end */
         );
       }
 });
 
-module.exports = MainSection;
+module.exports = ErrorSection;

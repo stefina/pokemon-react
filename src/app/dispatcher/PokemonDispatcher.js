@@ -1,3 +1,5 @@
+'use strict';
+
 var Dispatcher = require('./Dispatcher');
 var assign = require('object-assign');
 

@@ -1,15 +1,21 @@
-var Header = require('./Header.react'),
-    Footer = require('./Footer.react'),
-    MainSection = require('./MainSection.react');
+'use strict';
 
-var React = require('react'),
-    PokemonApp = React.createClass({
+var React = require('react');
+var Router = require('react-router');
+var Route = Router.Route,
+    DefaultRoute = Router.DefaultRoute,
+    RouteHandler = Router.RouteHandler,
+    Link = Router.Link;
+var Header = require('./Header.react'),
+    Footer = require('./Footer.react');
+
+var PokemonApp = React.createClass({
     render: function() {
         return (
             /*jshint ignore:start */
             <div>
                 <Header />
-                <MainSection />
+                <RouteHandler />
                 <Footer />
             </div>
             /*jshint ignore:end */

@@ -1,3 +1,5 @@
+'use strict';
+
 var React = require('react'),
     Header = React.createClass({
     /**
@@ -5,6 +7,7 @@ var React = require('react'),
        */
       render: function() {
         return (
+          /*jshint ignore:start */
           <div className="header" id="header">
             <a href="home" className="link">
                 <i className="fa fa-home fa-3x menu-icon"/>
@@ -13,7 +16,8 @@ var React = require('react'),
             <a href="/map" className="link">
                 <i className="fa fa-map-marker fa-3x menu-icon"/>
             </a>
-        </div>
+          </div>
+          /*jshint ignore:end */
     );
   }
 

@@ -1,7 +1,7 @@
 'use strict';
 
 var React = require('react'),
-    MainSection = React.createClass({
+    MapSection = React.createClass({
       /**
        * @return {object}
        */
@@ -9,11 +9,11 @@ var React = require('react'),
         return (
           /*jshint ignore:start */
           <div>
-            some other stuff than a map
+            <div id='map'></div>
           </div>
           /*jshint ignore:end */
         );
       }
 });
 
-module.exports = MainSection;
+module.exports = MapSection;
