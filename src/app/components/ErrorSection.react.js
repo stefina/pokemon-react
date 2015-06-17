@@ -1,17 +1,18 @@
 'use strict';
 
 var React = require('react'),
-    MapSection = React.createClass({
+    ErrorSection = React.createClass({
       /**
        * @return {object}
        */
       render: function() {
         return (
           <div>
-            <div id='map'></div>
+            You need an internet connection and an account to play this game.
+            It is free.
           </div>
         );
       }
 });
 
-module.exports = MapSection;
+module.exports = ErrorSection;

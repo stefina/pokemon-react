@@ -1,8 +1,12 @@
+'use strict';
+
 var React = require('react'),
     Header = require('./Header.react'),
     Footer = require('./Footer.react'),
     MapSection = require('./MapSection.react'),
-    MainSection = require('./MainSection.react');
+    MainSection = require('./MainSection.react'),
+    LoginSection = require('./LoginSection.react'),
+    ErrorSection = require('./ErrorSection.react');
 var Router = require('react-router');
 var Route = Router.Route,
     DefaultRoute = Router.DefaultRoute,
@@ -23,13 +27,7 @@ var PokemonApp = React.createClass({
     }
 });
 
-var routes = (
-    <Route name="app" path="/" handler={PokemonApp}>
-        <Route name="map" path="/map" handler={MapSection} />
-        <Route name="stuff" path="/stuff" handler={MainSection} />
-        <DefaultRoute handler={MapSection}/>
-    </Route>
-);
+var routes = require('./../../config/routes');
 
 Router.run(routes, function (Handler) {
     React.render(<Handler />, document.body);

@@ -1,3 +1,5 @@
+'use strict';
+
 var React = require('react'),
     MainSection = React.createClass({
       /**

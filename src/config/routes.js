@@ -1,9 +1,10 @@
 var routes = (
-  <Route name="app" path="/" handler={App}>
-    <Route name="inbox" handler={Inbox}/>
-    <Route name="calendar" handler={Calendar}/>
-    <DefaultRoute handler={Dashboard}/>
-  </Route>
+    <Route name="app" path="/" handler={PokemonApp}>
+        <Route name="map" path="/map" handler={MapSection} />
+        <Route name="stuff" path="/stuff" handler={MainSection} />
+        <Route name="error" path="/error" handler={ErrorSection} />
+        <DefaultRoute handler={LoginSection}/>
+    </Route>
 );
 
 module.exports = routes;
